@@ -1,5 +1,7 @@
 const express = require("express");
 const mongoose = require("mongoose");
+//запрашиваем модель user и присваеваем её константе User
+const User = require("./models/user");
 
 const { PORT = 3000 } = process.env;
 
@@ -18,6 +20,16 @@ mongoose
   .then(() => {
     console.log("Connected to DB");
   });
+
+  //post запрос на создание нового юзера
+app.post("/users", (req, res) => {
+  const { name, about, avatar } = req.body;
+  User.create({ name, about, avatar })
+    // вернём записанные в базу данные
+    .then((user) => res.status(201).send({ data: user }))
+    // данные не записались, вернём ошибку
+    .catch((err) => res.status(500).send({ message: "Произошла ошибка" }));
+});
 
 app.listen(PORT, () => {
   // Если всё работает, консоль покажет, какой порт приложение слушает
