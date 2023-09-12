@@ -3,6 +3,7 @@ const mongoose = require("mongoose");
 //запрашиваем модель user и присваеваем её константе User
 const User = require("./models/user");
 const usersRouter = require("./routes/user");
+const cardsRouter = require("./routes/card");
 
 const { PORT = 3000 } = process.env;
 
@@ -24,6 +25,17 @@ mongoose
 
 //применяем импортированный для юзеров route
 app.use(usersRouter);
+
+//захардкодили одного из юзеров, чтобы временно делать его собственником всех карточек
+app.use((req, res, next) => {
+  req.user = {
+    _id: "64fdc6ff8d4ee83c0c3baaae",
+  };
+  next();
+});
+
+//применяем импортированный для карточек route
+app.use(cardsRouter);
 
 app.listen(PORT, () => {
   // Если всё работает, консоль покажет, какой порт приложение слушает

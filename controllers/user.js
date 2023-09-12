@@ -1,5 +1,3 @@
-// const express = require("express");
-// const mongoose = require("mongoose");
 //запрашиваем модель user и присваеваем её константе User
 const User = require("../models/user");
 
