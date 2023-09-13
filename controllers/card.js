@@ -1,7 +1,3 @@
-// GET /cards — возвращает все карточки
-// POST /cards — создаёт карточку
-// DELETE /cards/:cardId — удаляет карточку по идентификатору
-
 //запрашиваем модель card и присваеваем её константе Card
 const Card = require("../models/card");
 
@@ -34,7 +30,7 @@ const createCard = (req, res) => {
 };
 
 const deleteCardById = (req, res) => {
-  Card.findByIdAndRemove(req.params.cardId, { useFindAndModify: false} )
+  Card.findByIdAndRemove(req.params.cardId, { useFindAndModify: false })
     .then((card) => {
       if (!card) {
         return res.status(404).send({ message: "Карточка не найдена" });
@@ -47,8 +43,48 @@ const deleteCardById = (req, res) => {
     });
 };
 
+//поставить лайк карточке
+const likeCard = (req, res) => {
+  Card.findByIdAndUpdate(
+    req.params.cardId,
+    { $addToSet: { likes: req.user._id } }, // добавить _id в массив, если его там нет
+    { new: true }
+  )
+    .then((card) => {
+      console.log("card:", card);
+      return res.status(201).send({ data: card });
+    })
+    // данные не записались, вернём ошибку
+    .catch((err) => {
+      console.log("Ошибка:", err);
+      return res.status(400).send({ message: err.message });
+    });
+};
+
+// убрать лайк с карточки
+const dislikeCard = (req, res) => {
+  Card.findByIdAndUpdate(
+    req.params.cardId,
+    { $pull: { likes: req.user._id } }, // убрать _id из массива
+    { new: true }
+  )
+    .then((card) => {
+      console.log("card:", card);
+      return res.status(201).send({ data: card });
+    })
+    // данные не записались, вернём ошибку
+    .catch((err) => {
+      console.log("Ошибка:", err);
+      return res.status(400).send({ message: err.message });
+    });
+};
+
+
+
 module.exports = {
   getCards,
   createCard,
   deleteCardById,
+  likeCard,
+  dislikeCard,
 };
