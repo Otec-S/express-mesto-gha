@@ -23,9 +23,6 @@ mongoose
     console.log("Connected to DB");
   });
 
-//применяем импортированный для юзеров route
-app.use(usersRouter);
-
 //захардкодили одного из юзеров, чтобы временно делать его собственником всех карточек
 app.use((req, res, next) => {
   req.user = {
@@ -33,6 +30,9 @@ app.use((req, res, next) => {
   };
   next();
 });
+
+//применяем импортированный для юзеров route
+app.use(usersRouter);
 
 //применяем импортированный для карточек route
 app.use(cardsRouter);
