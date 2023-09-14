@@ -1,3 +1,9 @@
+const {
+  ERROR_CODE_SERVER_ERROR,
+  ERROR_CODE_BAD_REQUEST,
+  ERROR_CODE_NOT_FOUND,
+} = require("../utils");
+
 //запрашиваем модель card и присваеваем её константе Card
 const Card = require("../models/card");
 
@@ -7,10 +13,11 @@ const getCards = (req, res) => {
     .then((cards) => {
       return res.status(200).send({ data: cards });
     })
-    // данные не записались, вернём ошибку
     .catch((err) => {
-      console.log("Ошибка сервера:", err);
-      return res.status(500).send({ message: "Произошла ошибка сервера" });
+      console.log("Ошибка сервера в контроллере getCards:", err);
+      return res
+        .status(ERROR_CODE_SERVER_ERROR)
+        .send({ message: "На сервере произошла ошибка" });
     });
 };
 
@@ -24,8 +31,16 @@ const createCard = (req, res) => {
     })
     // данные не записались, вернём ошибку
     .catch((err) => {
-      console.log("Ошибка:", err);
-      return res.status(400).send({ message: err.message });
+      if (err.status === ERROR_CODE_BAD_REQUEST) {
+        console.log("Ошибка сервера в контроллере createCard:", err);
+        return res.status(ERROR_CODE_BAD_REQUEST).send({
+          message: "Переданы некорректные данные при создании карточки",
+        });
+      }
+      console.log("Ошибка сервера в контроллере createCard:", err);
+      return res
+        .status(ERROR_CODE_SERVER_ERROR)
+        .send({ message: "На сервере произошла ошибка" });
     });
 };
 
@@ -33,13 +48,17 @@ const deleteCardById = (req, res) => {
   Card.findByIdAndRemove(req.params.cardId, { useFindAndModify: false })
     .then((card) => {
       if (!card) {
-        return res.status(404).send({ message: "Карточка не найдена" });
+        return res
+          .status(ERROR_CODE_NOT_FOUND)
+          .send({ message: "Карточка с указанным _id не найдена." });
       }
       return res.send({ data: card });
     })
-    //!!! TODO переделать обработчик ошибок на разные варианты
     .catch((err) => {
-      return res.status(500).send({ message: "Произошла ошибка" });
+      console.log("Ошибка сервера в контроллере deleteCardById:", err);
+      return res
+        .status(ERROR_CODE_SERVER_ERROR)
+        .send({ message: "На сервере произошла ошибка" });
     });
 };
 
@@ -51,13 +70,18 @@ const likeCard = (req, res) => {
     { new: true }
   )
     .then((card) => {
-      console.log("card:", card);
+      if (!card) {
+        return res.status(ERROR_CODE_BAD_REQUEST).send({
+          message: "Переданы некорректные данные для постановки лайка",
+        });
+      }
       return res.status(201).send({ data: card });
     })
-    // данные не записались, вернём ошибку
     .catch((err) => {
-      console.log("Ошибка:", err);
-      return res.status(400).send({ message: err.message });
+      console.log("Ошибка сервера в контроллере likeCard:", err);
+      return res
+        .status(ERROR_CODE_SERVER_ERROR)
+        .send({ message: "На сервере произошла ошибка" });
     });
 };
 
@@ -69,17 +93,20 @@ const dislikeCard = (req, res) => {
     { new: true }
   )
     .then((card) => {
-      console.log("card:", card);
+      if (!card) {
+        return res
+          .status(ERROR_CODE_NOT_FOUND)
+          .send({ message: "Передан несуществующий _id карточки" });
+      }
       return res.status(201).send({ data: card });
     })
-    // данные не записались, вернём ошибку
     .catch((err) => {
-      console.log("Ошибка:", err);
-      return res.status(400).send({ message: err.message });
+      console.log("Ошибка сервера в контроллере dislikeCard:", err);
+      return res
+        .status(ERROR_CODE_SERVER_ERROR)
+        .send({ message: "На сервере произошла ошибка" });
     });
 };
-
-
 
 module.exports = {
   getCards,

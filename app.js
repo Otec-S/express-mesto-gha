@@ -1,13 +1,13 @@
 const express = require("express");
 const mongoose = require("mongoose");
-//запрашиваем модель user и присваеваем её константе User
-const User = require("./models/user");
 const usersRouter = require("./routes/user");
 const cardsRouter = require("./routes/card");
+const ERROR_CODE_SERVER_ERROR = require("./utils");
 
 const { PORT = 3000 } = process.env;
 
 const app = express();
+
 
 //научили express работать с json
 app.use(express.json());
@@ -21,6 +21,10 @@ mongoose
   })
   .then(() => {
     console.log("Connected to DB");
+  })
+  .catch((err) => {
+    console.log("Ошибка с подключением базы данных:", err);
+    return res.status(ERROR_CODE_SERVER_ERROR).send({ message: 'На сервере произошла ошибка' });
   });
 
 //захардкодили одного из юзеров, чтобы временно делать его собственником всех карточек

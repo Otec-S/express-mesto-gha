@@ -1,3 +1,9 @@
+const {
+  ERROR_CODE_SERVER_ERROR,
+  ERROR_CODE_BAD_REQUEST,
+  ERROR_CODE_NOT_FOUND,
+} = require("../utils");
+
 //запрашиваем модель user и присваеваем её константе User
 const User = require("../models/user");
 
@@ -7,10 +13,11 @@ const getUsers = (req, res) => {
     .then((users) => {
       return res.status(200).send({ data: users });
     })
-    // данные не записались, вернём ошибку
     .catch((err) => {
-      console.log("Ошибка сервера:", err);
-      return res.status(500).send({ message: "Произошла ошибка сервера" });
+      console.log("Ошибка сервера в контроллере getUsers:", err);
+      return res
+        .status(ERROR_CODE_SERVER_ERROR)
+        .send({ message: "На сервере произошла ошибка" });
     });
 };
 
@@ -18,13 +25,17 @@ const findUserById = (req, res) => {
   User.findById(req.params.id)
     .then((user) => {
       if (!user) {
-        return res.status(404).send({ message: "Пользователь не найден" });
+        return res
+          .status(ERROR_CODE_NOT_FOUND)
+          .send({ message: "Пользователь по указанному _id не найден" });
       }
       return res.send({ data: user });
     })
-    //!!! TODO переделать обработчик ошибок на разные варианты
     .catch((err) => {
-      return res.status(500).send({ message: "Произошла ошибка" });
+      console.log("Ошибка сервера в контроллере findUserById:", err);
+      return res
+        .status(ERROR_CODE_SERVER_ERROR)
+        .send({ message: "На сервере произошла ошибка" });
     });
 };
 
@@ -37,8 +48,16 @@ const createUser = (req, res) => {
     })
     // данные не записались, вернём ошибку
     .catch((err) => {
-      console.log("Ошибка:", err);
-      return res.status(400).send({ message: err.message });
+      if (err.status === ERROR_CODE_BAD_REQUEST) {
+        console.log("Ошибка сервера в контроллере createUser:", err);
+        return res.status(ERROR_CODE_BAD_REQUEST).send({
+          message: "Переданы некорректные данные при создании пользователя",
+        });
+      }
+      console.log("Ошибка сервера в контроллере createUser:", err);
+      return res
+        .status(ERROR_CODE_SERVER_ERROR)
+        .send({ message: "На сервере произошла ошибка" });
     });
 };
 
@@ -62,12 +81,25 @@ const updateUserProfile = (req, res) => {
     }
   )
     .then((user) => {
+      if (!user) {
+        return res.status(ERROR_CODE_NOT_FOUND).send({
+          message: "Пользователь с указанным _id не найден",
+        });
+      }
       return res.status(201).send({ data: user });
     })
     // данные не записались, вернём ошибку
     .catch((err) => {
-      console.log("Ошибка:", err);
-      return res.status(400).send({ message: err.message });
+      if (err.status === ERROR_CODE_BAD_REQUEST) {
+        console.log("Ошибка сервера в контроллере updateUserProfile:", err);
+        return res.status(ERROR_CODE_BAD_REQUEST).send({
+          message: "Переданы некорректные данные при обновлении профиля",
+        });
+      }
+      console.log("Ошибка сервера в контроллере updateUserProfile:", err);
+      return res
+        .status(ERROR_CODE_SERVER_ERROR)
+        .send({ message: "На сервере произошла ошибка" });
     });
 };
 
@@ -83,12 +115,25 @@ const updateUserAvatar = (req, res) => {
     }
   )
     .then((avatar) => {
+      if (!avatar) {
+        return res.status(ERROR_CODE_NOT_FOUND).send({
+          message: "Пользователь с указанным _id не найден",
+        });
+      }
       return res.status(201).send({ data: avatar });
     })
     // данные не записались, вернём ошибку
     .catch((err) => {
-      console.log("Ошибка:", err);
-      return res.status(400).send({ message: err.message });
+      if (err.status === ERROR_CODE_BAD_REQUEST) {
+        console.log("Ошибка сервера в контроллере updateUserAvatar:", err);
+        return res.status(ERROR_CODE_BAD_REQUEST).send({
+          message: "Переданы некорректные данные при обновлении аватара",
+        });
+      }
+      console.log("Ошибка сервера в контроллере updateUserAvatar:", err);
+      return res
+        .status(ERROR_CODE_SERVER_ERROR)
+        .send({ message: "На сервере произошла ошибка" });
     });
 };
 
