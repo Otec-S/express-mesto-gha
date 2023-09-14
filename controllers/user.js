@@ -93,7 +93,6 @@ const updateUserProfile = (req, res) => {
           message: "Переданы некорректные данные при обновлении профиля",
         });
       }
-      console.log("Ошибка сервера в контроллере updateUserProfile:", err);
       return res
         .status(ERROR_CODE_SERVER_ERROR)
         .send({ message: "На сервере произошла ошибка" });

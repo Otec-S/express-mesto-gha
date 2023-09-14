@@ -8,7 +8,6 @@ const { PORT = 3000 } = process.env;
 
 const app = express();
 
-
 //научили express работать с json
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -24,7 +23,9 @@ mongoose
   })
   .catch((err) => {
     console.log("Ошибка с подключением базы данных:", err);
-    return res.status(ERROR_CODE_SERVER_ERROR).send({ message: 'На сервере произошла ошибка' });
+    return res
+      .status(ERROR_CODE_SERVER_ERROR)
+      .send({ message: "На сервере произошла ошибка" });
   });
 
 //захардкодили одного из юзеров, чтобы временно делать его собственником всех карточек
