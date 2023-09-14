@@ -1,3 +1,5 @@
+const mongoose = require("mongoose");
+
 const {
   ERROR_CODE_SERVER_ERROR,
   ERROR_CODE_BAD_REQUEST,
@@ -14,7 +16,6 @@ const getCards = (req, res) => {
       return res.status(200).send({ data: cards });
     })
     .catch((err) => {
-      console.log("Ошибка сервера в контроллере getCards:", err);
       return res
         .status(ERROR_CODE_SERVER_ERROR)
         .send({ message: "На сервере произошла ошибка" });
@@ -31,13 +32,11 @@ const createCard = (req, res) => {
     })
     // данные не записались, вернём ошибку
     .catch((err) => {
-      if (err.status === ERROR_CODE_BAD_REQUEST) {
-        console.log("Ошибка сервера в контроллере createCard:", err);
+      if (err instanceof mongoose.Error.ValidationError) {
         return res.status(ERROR_CODE_BAD_REQUEST).send({
           message: "Переданы некорректные данные при создании карточки",
         });
       }
-      console.log("Ошибка сервера в контроллере createCard:", err);
       return res
         .status(ERROR_CODE_SERVER_ERROR)
         .send({ message: "На сервере произошла ошибка" });
@@ -55,7 +54,6 @@ const deleteCardById = (req, res) => {
       return res.send({ data: card });
     })
     .catch((err) => {
-      console.log("Ошибка сервера в контроллере deleteCardById:", err);
       return res
         .status(ERROR_CODE_SERVER_ERROR)
         .send({ message: "На сервере произошла ошибка" });
@@ -70,15 +68,14 @@ const likeCard = (req, res) => {
     { new: true }
   )
     .then((card) => {
-      if (!card) {
-        return res.status(ERROR_CODE_BAD_REQUEST).send({
-          message: "Переданы некорректные данные для постановки лайка",
-        });
-      }
       return res.status(201).send({ data: card });
     })
     .catch((err) => {
-      console.log("Ошибка сервера в контроллере likeCard:", err);
+      if (err instanceof mongoose.Error.CastError) {
+        return res.status(ERROR_CODE_NOT_FOUND).send({
+          message: "Передан несуществующий _id карточки",
+        });
+      }
       return res
         .status(ERROR_CODE_SERVER_ERROR)
         .send({ message: "На сервере произошла ошибка" });
@@ -93,15 +90,14 @@ const dislikeCard = (req, res) => {
     { new: true }
   )
     .then((card) => {
-      if (!card) {
-        return res
-          .status(ERROR_CODE_NOT_FOUND)
-          .send({ message: "Передан несуществующий _id карточки" });
-      }
       return res.status(201).send({ data: card });
     })
     .catch((err) => {
-      console.log("Ошибка сервера в контроллере dislikeCard:", err);
+      if (err instanceof mongoose.Error.CastError) {
+        return res.status(ERROR_CODE_NOT_FOUND).send({
+          message: "Передан несуществующий _id карточки",
+        });
+      }
       return res
         .status(ERROR_CODE_SERVER_ERROR)
         .send({ message: "На сервере произошла ошибка" });

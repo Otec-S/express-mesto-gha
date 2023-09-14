@@ -1,3 +1,5 @@
+const mongoose = require("mongoose");
+
 const {
   ERROR_CODE_SERVER_ERROR,
   ERROR_CODE_BAD_REQUEST,
@@ -14,7 +16,6 @@ const getUsers = (req, res) => {
       return res.status(200).send({ data: users });
     })
     .catch((err) => {
-      console.log("Ошибка сервера в контроллере getUsers:", err);
       return res
         .status(ERROR_CODE_SERVER_ERROR)
         .send({ message: "На сервере произошла ошибка" });
@@ -24,15 +25,14 @@ const getUsers = (req, res) => {
 const findUserById = (req, res) => {
   User.findById(req.params.id)
     .then((user) => {
-      if (!user) {
+      return res.send({ data: user });
+    })
+    .catch((err) => {
+      if (err instanceof mongoose.Error.CastError) {
         return res
           .status(ERROR_CODE_NOT_FOUND)
           .send({ message: "Пользователь по указанному _id не найден" });
       }
-      return res.send({ data: user });
-    })
-    .catch((err) => {
-      console.log("Ошибка сервера в контроллере findUserById:", err);
       return res
         .status(ERROR_CODE_SERVER_ERROR)
         .send({ message: "На сервере произошла ошибка" });
@@ -48,13 +48,11 @@ const createUser = (req, res) => {
     })
     // данные не записались, вернём ошибку
     .catch((err) => {
-      if (err.status === ERROR_CODE_BAD_REQUEST) {
-        console.log("Ошибка сервера в контроллере createUser:", err);
+      if (err instanceof mongoose.Error.ValidationError) {
         return res.status(ERROR_CODE_BAD_REQUEST).send({
           message: "Переданы некорректные данные при создании пользователя",
         });
       }
-      console.log("Ошибка сервера в контроллере createUser:", err);
       return res
         .status(ERROR_CODE_SERVER_ERROR)
         .send({ message: "На сервере произошла ошибка" });
@@ -90,8 +88,7 @@ const updateUserProfile = (req, res) => {
     })
     // данные не записались, вернём ошибку
     .catch((err) => {
-      if (err.status === ERROR_CODE_BAD_REQUEST) {
-        console.log("Ошибка сервера в контроллере updateUserProfile:", err);
+      if (err instanceof mongoose.Error.ValidationError) {
         return res.status(ERROR_CODE_BAD_REQUEST).send({
           message: "Переданы некорректные данные при обновлении профиля",
         });
@@ -114,23 +111,21 @@ const updateUserAvatar = (req, res) => {
       new: true,
     }
   )
-    .then((avatar) => {
-      if (!avatar) {
+    .then((user) => {
+      if (!user) {
         return res.status(ERROR_CODE_NOT_FOUND).send({
           message: "Пользователь с указанным _id не найден",
         });
       }
-      return res.status(201).send({ data: avatar });
+      return res.status(201).send({ data: user });
     })
     // данные не записались, вернём ошибку
     .catch((err) => {
-      if (err.status === ERROR_CODE_BAD_REQUEST) {
-        console.log("Ошибка сервера в контроллере updateUserAvatar:", err);
+      if (err instanceof mongoose.Error.ValidationError) {
         return res.status(ERROR_CODE_BAD_REQUEST).send({
           message: "Переданы некорректные данные при обновлении аватара",
         });
       }
-      console.log("Ошибка сервера в контроллере updateUserAvatar:", err);
       return res
         .status(ERROR_CODE_SERVER_ERROR)
         .send({ message: "На сервере произошла ошибка" });
