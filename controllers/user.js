@@ -30,7 +30,7 @@ const findUserById = (req, res) => {
     .catch((err) => {
       if (err instanceof mongoose.Error.CastError) {
         return res
-          .status(ERROR_CODE_NOT_FOUND)
+          .status(ERROR_CODE_BAD_REQUEST)
           .send({ message: "Пользователь по указанному _id не найден" });
       }
       return res
