@@ -21,10 +21,15 @@ const getUsers = (req, res) => {
         .send({ message: "На сервере произошла ошибка" });
     });
 };
-
+//////////////////////
 const findUserById = (req, res) => {
   User.findById(req.params.id)
     .then((user) => {
+      if (!user) {
+        return res.status(ERROR_CODE_NOT_FOUND).send({
+          message: "Пользователь с указанным _id не найден",
+        });
+      }
       return res.send({ data: user });
     })
     .catch((err) => {
