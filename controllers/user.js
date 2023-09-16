@@ -81,6 +81,7 @@ const updateUserProfile = (req, res) => {
     },
     {
       new: true,
+      runValidators: true,
     }
   )
     .then((user) => {
@@ -113,6 +114,7 @@ const updateUserAvatar = (req, res) => {
     },
     {
       new: true,
+      runValidators: true,
     }
   )
     .then((user) => {
