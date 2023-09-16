@@ -21,7 +21,7 @@ const getUsers = (req, res) => {
         .send({ message: "На сервере произошла ошибка" });
     });
 };
-//////////////////////
+
 const findUserById = (req, res) => {
   User.findById(req.params.id)
     .then((user) => {
@@ -89,7 +89,7 @@ const updateUserProfile = (req, res) => {
           message: "Пользователь с указанным _id не найден",
         });
       }
-      return res.status(201).send({ data: user });
+      return res.status(200).send({ data: user });
     })
     // данные не записались, вернём ошибку
     .catch((err) => {
