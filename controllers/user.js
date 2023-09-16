@@ -99,7 +99,6 @@ const updateUserProfile = (req, res) => {
           message: "Переданы некорректные данные при обновлении профиля",
         });
       }
-      ////////////////////////////
       if (err instanceof mongoose.Error.CastError) {
         return res
           .status(ERROR_CODE_NOT_FOUND)
@@ -110,12 +109,6 @@ const updateUserProfile = (req, res) => {
           .status(ERROR_CODE_NOT_FOUND)
           .send({ message: "111Пользователь по указанному _id не найден" });
       }
-      //////////////////////////
-      // if (err.name === 'Not Found') {
-      //   return res
-      //     .status(ERROR_CODE_NOT_FOUND)
-      //     .send({ message: "111Пользователь по указанному _id не найден" });
-      // }
       return res
         .status(ERROR_CODE_SERVER_ERROR)
         .send({ message: "На сервере произошла ошибка" });
