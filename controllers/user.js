@@ -123,7 +123,7 @@ const updateUserAvatar = (req, res) => {
           message: "Пользователь с указанным _id не найден",
         });
       }
-      return res.status(201).send({ data: user });
+      return res.status(200).send({ data: user });
     })
     // данные не записались, вернём ошибку
     .catch((err) => {
