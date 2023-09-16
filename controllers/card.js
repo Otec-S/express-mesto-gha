@@ -48,17 +48,17 @@ const deleteCardById = (req, res) => {
     .then((card) => {
       if (!card) {
         return res
-          .status(ERROR_CODE_BAD_REQUEST)
+          .status(ERROR_CODE_NOT_FOUND)
           .send({ message: "Карточка с указанным _id не найдена." });
       }
       return res.send({ data: card });
     })
     .catch((err) => {
-      if (err instanceof mongoose.Error.CastError) {
-        return res.status(ERROR_CODE_BAD_REQUEST).send({
-          message: "Карточка с указанным _id не найдена",
-        });
-      }
+      // if (err instanceof mongoose.Error.CastError) {
+      //   return res.status(ERROR_CODE_BAD_REQUEST).send({
+      //     message: "222Карточка с указанным _id не найдена",
+      //   });
+      // }
       return res
         .status(ERROR_CODE_SERVER_ERROR)
         .send({ message: "На сервере произошла ошибка" });
