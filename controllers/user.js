@@ -65,31 +65,19 @@ const createUser = (req, res) => {
 };
 
 //обновляем профиль пользователя
-let newName, newAbout;
 const updateUserProfile = (req, res) => {
-  if (req.body.name) {
-    newName = req.body.name;
-  }
-  if (req.body.about) {
-    newAbout = req.body.about;
-  }
-  User.findByIdAndUpdate(
-    req.user._id,
-    {
-      name: newName,
-      about: newAbout,
-    },
-    {
-      new: true,
-      runValidators: true,
-    }
-  )
+  User.findByIdAndUpdate(req.user._id, {
+    new: true,
+    runValidators: true,
+  })
     .then((user) => {
       if (!user) {
         return res.status(ERROR_CODE_NOT_FOUND).send({
           message: "Пользователь с указанным _id не найден",
         });
       }
+      user.name = req.body.name || user.name;
+      user.about = req.body.about || user.about;
       return res.status(200).send({ data: user });
     })
     // данные не записались, вернём ошибку
@@ -98,16 +86,6 @@ const updateUserProfile = (req, res) => {
         return res.status(ERROR_CODE_BAD_REQUEST).send({
           message: "Переданы некорректные данные при обновлении профиля",
         });
-      }
-      if (err instanceof mongoose.Error.CastError) {
-        return res
-          .status(ERROR_CODE_NOT_FOUND)
-          .send({ message: "111Пользователь по указанному _id не найден" });
-      }
-      if (err instanceof mongoose.Error.StrictPopulateError) {
-        return res
-          .status(ERROR_CODE_NOT_FOUND)
-          .send({ message: "111Пользователь по указанному _id не найден" });
       }
       return res
         .status(ERROR_CODE_SERVER_ERROR)
