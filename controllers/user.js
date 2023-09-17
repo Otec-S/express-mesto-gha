@@ -65,19 +65,37 @@ const createUser = (req, res) => {
 };
 
 //обновляем профиль пользователя
+let currentName, currentAbout;
+
 const updateUserProfile = (req, res) => {
-  User.findByIdAndUpdate(req.user._id, {
-    new: true,
-    runValidators: true,
-  })
+
+  User.findById(req.user._id)
+    .then((user) => {
+      currentName = user.name;
+      currentAbout = user.about;
+    })
+    .catch((err) => {
+      return res
+        .status(ERROR_CODE_SERVER_ERROR)
+        .send({ message: "На сервере произошла ошибка" });
+    });
+
+  User.findByIdAndUpdate(
+    req.user._id,
+    { name: req.body.name || currentName, about: req.body.about || currentAbout},
+    {
+      new: true,
+      runValidators: true,
+    }
+  )
     .then((user) => {
       if (!user) {
         return res.status(ERROR_CODE_NOT_FOUND).send({
           message: "Пользователь с указанным _id не найден",
         });
       }
-      user.name = req.body.name || user.name;
-      user.about = req.body.about || user.about;
+      // user.name = req.body.name || user.name;
+      // user.about = req.body.about || user.about;
       return res.status(200).send({ data: user });
     })
     // данные не записались, вернём ошибку
