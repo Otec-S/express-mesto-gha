@@ -68,7 +68,6 @@ const createUser = (req, res) => {
 let currentName, currentAbout;
 
 const updateUserProfile = (req, res) => {
-
   User.findById(req.user._id)
     .then((user) => {
       currentName = user.name;
@@ -82,7 +81,10 @@ const updateUserProfile = (req, res) => {
 
   User.findByIdAndUpdate(
     req.user._id,
-    { name: req.body.name || currentName, about: req.body.about || currentAbout},
+    {
+      name: req.body.name || currentName,
+      about: req.body.about || currentAbout,
+    },
     {
       new: true,
       runValidators: true,
