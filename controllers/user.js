@@ -148,10 +148,18 @@ const updateUserAvatar = (req, res) => {
     });
 };
 
+//общая ошибка в url
+const wrongUrl = (req, res) => {
+  return res.status(ERROR_CODE_NOT_FOUND).send({
+    message: "Неверный адрес страницы",
+  });
+};
+
 module.exports = {
   getUsers,
   findUserById,
   createUser,
   updateUserProfile,
   updateUserAvatar,
+  wrongUrl,
 };
