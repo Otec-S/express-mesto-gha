@@ -42,10 +42,7 @@ app.use(usersRouter);
 //применяем импортированный для карточек route
 app.use(cardsRouter);
 
-
-
 app.listen(PORT, () => {
   // Если всё работает, консоль покажет, какой порт приложение слушает
   console.log(`App listening on port ${PORT}`);
 });
-

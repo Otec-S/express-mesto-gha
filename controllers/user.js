@@ -29,18 +29,20 @@ const findUserById = (req, res) => {
         return res.status(ERROR_CODE_NOT_FOUND).send({
           message: "Пользователь с указанным _id не найден",
         });
+      } else {
+        return res.send({ data: user });
       }
-      return res.send({ data: user });
     })
     .catch((err) => {
       if (err instanceof mongoose.Error.CastError) {
         return res
           .status(ERROR_CODE_BAD_REQUEST)
           .send({ message: "Пользователь по указанному _id не найден" });
+      } else {
+        return res
+          .status(ERROR_CODE_SERVER_ERROR)
+          .send({ message: "На сервере произошла ошибка" });
       }
-      return res
-        .status(ERROR_CODE_SERVER_ERROR)
-        .send({ message: "На сервере произошла ошибка" });
     });
 };
 
@@ -57,10 +59,11 @@ const createUser = (req, res) => {
         return res.status(ERROR_CODE_BAD_REQUEST).send({
           message: "Переданы некорректные данные при создании пользователя",
         });
+      } else {
+        return res
+          .status(ERROR_CODE_SERVER_ERROR)
+          .send({ message: "На сервере произошла ошибка" });
       }
-      return res
-        .status(ERROR_CODE_SERVER_ERROR)
-        .send({ message: "На сервере произошла ошибка" });
     });
 };
 
@@ -95,10 +98,9 @@ const updateUserProfile = (req, res) => {
         return res.status(ERROR_CODE_NOT_FOUND).send({
           message: "Пользователь с указанным _id не найден",
         });
+      } else {
+        return res.status(200).send({ data: user });
       }
-      // user.name = req.body.name || user.name;
-      // user.about = req.body.about || user.about;
-      return res.status(200).send({ data: user });
     })
     // данные не записались, вернём ошибку
     .catch((err) => {
@@ -106,10 +108,11 @@ const updateUserProfile = (req, res) => {
         return res.status(ERROR_CODE_BAD_REQUEST).send({
           message: "Переданы некорректные данные при обновлении профиля",
         });
+      } else {
+        return res
+          .status(ERROR_CODE_SERVER_ERROR)
+          .send({ message: "На сервере произошла ошибка" });
       }
-      return res
-        .status(ERROR_CODE_SERVER_ERROR)
-        .send({ message: "На сервере произошла ошибка" });
     });
 };
 
@@ -130,8 +133,9 @@ const updateUserAvatar = (req, res) => {
         return res.status(ERROR_CODE_NOT_FOUND).send({
           message: "Пользователь с указанным _id не найден",
         });
+      } else {
+        return res.status(200).send({ data: user });
       }
-      return res.status(200).send({ data: user });
     })
     // данные не записались, вернём ошибку
     .catch((err) => {
@@ -139,10 +143,11 @@ const updateUserAvatar = (req, res) => {
         return res.status(ERROR_CODE_BAD_REQUEST).send({
           message: "Переданы некорректные данные при обновлении аватара",
         });
+      } else {
+        return res
+          .status(ERROR_CODE_SERVER_ERROR)
+          .send({ message: "На сервере произошла ошибка" });
       }
-      return res
-        .status(ERROR_CODE_SERVER_ERROR)
-        .send({ message: "На сервере произошла ошибка" });
     });
 };
 
