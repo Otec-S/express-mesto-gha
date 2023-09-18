@@ -23,7 +23,7 @@ mongoose
   })
   .catch((err) => {
     console.log("Ошибка с подключением базы данных:", err);
-    return res
+    return err
       .status(ERROR_CODE_SERVER_ERROR)
       .send({ message: "На сервере произошла ошибка" });
   });
