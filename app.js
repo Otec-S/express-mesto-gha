@@ -21,12 +21,11 @@ mongoose
   .then(() => {
     console.log("Connected to DB");
   })
-  .catch((err) => {
-    console.log("Ошибка с подключением базы данных:", err);
-    return err
+  .catch((err) =>
+    err
       .status(ERROR_CODE_SERVER_ERROR)
-      .send({ message: "На сервере произошла ошибка" });
-  });
+      .send({ message: "На сервере произошла ошибка" })
+  );
 
 // захардкодили одного из юзеров, чтобы временно делать его собственником всех карточек
 app.use((req, res, next) => {
