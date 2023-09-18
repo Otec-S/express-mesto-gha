@@ -6,7 +6,7 @@ const {
   ERROR_CODE_NOT_FOUND,
 } = require("../utils");
 
-//запрашиваем модель card и присваеваем её константе Card
+// запрашиваем модель card и присваеваем её константе Card
 const Card = require("../models/card");
 
 const getCards = (req, res) => {
@@ -46,17 +46,16 @@ const createCard = (req, res) => {
 
 const deleteCardById = (req, res) => {
   Card.findByIdAndRemove(req.params.cardId, { useFindAndModify: false })
+    .orFail(new Error("NotValidId"))
     .then((card) => {
-      if (!card) {
+      return res.send({ data: card });
+    })
+    .catch((err) => {
+      if (err.message === "NotValidId") {
         return res
           .status(ERROR_CODE_NOT_FOUND)
           .send({ message: "Карточка с указанным _id не найдена." });
-      } else {
-        return res.send({ data: card });
-      }
-    })
-    .catch((err) => {
-      if (err instanceof mongoose.Error.CastError) {
+      } else if (err instanceof mongoose.Error.CastError) {
         return res.status(ERROR_CODE_BAD_REQUEST).send({
           message: "Переданы некорректные данные для удаления карточки",
         });
@@ -75,17 +74,16 @@ const likeCard = (req, res) => {
     { $addToSet: { likes: req.user._id } }, // добавить _id в массив, если его там нет
     { new: true }
   )
+    .orFail(new Error("NotValidId"))
     .then((card) => {
-      if (!card) {
+      return res.status(200).send({ data: card });
+    })
+    .catch((err) => {
+      if (err.message === "NotValidId") {
         return res
           .status(ERROR_CODE_NOT_FOUND)
           .send({ message: "Карточка с указанным _id не найдена." });
-      } else {
-        return res.status(201).send({ data: card });
-      }
-    })
-    .catch((err) => {
-      if (err instanceof mongoose.Error.CastError) {
+      } else if (err instanceof mongoose.Error.CastError) {
         return res.status(ERROR_CODE_BAD_REQUEST).send({
           message: "Передан несуществующий _id карточки",
         });
@@ -104,17 +102,16 @@ const dislikeCard = (req, res) => {
     { $pull: { likes: req.user._id } }, // убрать _id из массива
     { new: true }
   )
+    .orFail(new Error("NotValidId"))
     .then((card) => {
-      if (!card) {
+      return res.status(200).send({ data: card });
+    })
+    .catch((err) => {
+      if (err.message === "NotValidId") {
         return res
           .status(ERROR_CODE_NOT_FOUND)
           .send({ message: "Карточка с указанным _id не найдена." });
-      } else {
-        return res.status(200).send({ data: card });
-      }
-    })
-    .catch((err) => {
-      if (err instanceof mongoose.Error.CastError) {
+      } else if (err instanceof mongoose.Error.CastError) {
         return res.status(ERROR_CODE_BAD_REQUEST).send({
           message: "Передан несуществующий _id карточки",
         });

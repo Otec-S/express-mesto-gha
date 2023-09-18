@@ -8,7 +8,7 @@ const { PORT = 3000 } = process.env;
 
 const app = express();
 
-//научили express работать с json
+// научили express работать с json
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -28,7 +28,7 @@ mongoose
       .send({ message: "На сервере произошла ошибка" });
   });
 
-//захардкодили одного из юзеров, чтобы временно делать его собственником всех карточек
+// захардкодили одного из юзеров, чтобы временно делать его собственником всех карточек
 app.use((req, res, next) => {
   req.user = {
     _id: "64fdc6ff8d4ee83c0c3baaae",
@@ -36,10 +36,10 @@ app.use((req, res, next) => {
   next();
 });
 
-//применяем импортированный для юзеров route
+// применяем импортированный для юзеров route
 app.use(usersRouter);
 
-//применяем импортированный для карточек route
+// применяем импортированный для карточек route
 app.use(cardsRouter);
 
 app.listen(PORT, () => {

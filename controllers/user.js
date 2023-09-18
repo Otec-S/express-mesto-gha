@@ -24,17 +24,16 @@ const getUsers = (req, res) => {
 
 const findUserById = (req, res) => {
   User.findById(req.params.id)
+    .orFail(new Error("NotValidId"))
     .then((user) => {
-      if (!user) {
+      return res.send({ data: user });
+    })
+    .catch((err) => {
+      if (err.message === "NotValidId") {
         return res.status(ERROR_CODE_NOT_FOUND).send({
           message: "Пользователь с указанным _id не найден",
         });
-      } else {
-        return res.send({ data: user });
-      }
-    })
-    .catch((err) => {
-      if (err instanceof mongoose.Error.CastError) {
+      } else if (err instanceof mongoose.Error.CastError) {
         return res
           .status(ERROR_CODE_BAD_REQUEST)
           .send({ message: "Пользователь по указанному _id не найден" });
@@ -93,18 +92,17 @@ const updateUserProfile = (req, res) => {
       runValidators: true,
     }
   )
+    .orFail(new Error("NotValidId"))
     .then((user) => {
-      if (!user) {
-        return res.status(ERROR_CODE_NOT_FOUND).send({
-          message: "Пользователь с указанным _id не найден",
-        });
-      } else {
-        return res.status(200).send({ data: user });
-      }
+      return res.status(200).send({ data: user });
     })
     // данные не записались, вернём ошибку
     .catch((err) => {
-      if (err instanceof mongoose.Error.ValidationError) {
+      if (err.message === "NotValidId") {
+        return res.status(ERROR_CODE_NOT_FOUND).send({
+          message: "Пользователь с указанным _id не найден",
+        });
+      } else if (err instanceof mongoose.Error.ValidationError) {
         return res.status(ERROR_CODE_BAD_REQUEST).send({
           message: "Переданы некорректные данные при обновлении профиля",
         });
@@ -128,18 +126,17 @@ const updateUserAvatar = (req, res) => {
       runValidators: true,
     }
   )
+    .orFail(new Error("NotValidId"))
     .then((user) => {
-      if (!user) {
-        return res.status(ERROR_CODE_NOT_FOUND).send({
-          message: "Пользователь с указанным _id не найден",
-        });
-      } else {
-        return res.status(200).send({ data: user });
-      }
+      return res.status(200).send({ data: user });
     })
     // данные не записались, вернём ошибку
     .catch((err) => {
-      if (err instanceof mongoose.Error.ValidationError) {
+      if (err.message === "NotValidId") {
+        return res.status(ERROR_CODE_NOT_FOUND).send({
+          message: "Пользователь с указанным _id не найден",
+        });
+      } else if (err instanceof mongoose.Error.ValidationError) {
         return res.status(ERROR_CODE_BAD_REQUEST).send({
           message: "Переданы некорректные данные при обновлении аватара",
         });
