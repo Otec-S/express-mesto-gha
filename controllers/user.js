@@ -67,25 +67,22 @@ const createUser = (req, res) => {
 };
 
 //обновляем профиль пользователя
-let currentName, currentAbout;
+let newName, newAbout;
 
 const updateUserProfile = (req, res) => {
-  User.findById(req.user._id)
-    .then((user) => {
-      currentName = user.name;
-      currentAbout = user.about;
-    })
-    .catch((err) => {
-      return res
-        .status(ERROR_CODE_SERVER_ERROR)
-        .send({ message: "На сервере произошла ошибка" });
-    });
+  if (req.body.name) {
+    newName = req.body.name;
+  }
+
+  if (req.body.about) {
+    newAbout = req.body.about;
+  }
 
   User.findByIdAndUpdate(
     req.user._id,
     {
-      name: req.body.name || currentName,
-      about: req.body.about || currentAbout,
+      name: newName,
+      about: newAbout,
     },
     {
       new: true,
