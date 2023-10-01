@@ -1,5 +1,7 @@
 const mongoose = require("mongoose");
 
+const bcrypt = require("bcryptjs");
+
 const {
   ERROR_CODE_SERVER_ERROR,
   ERROR_CODE_BAD_REQUEST,
@@ -41,9 +43,13 @@ const findUserById = (req, res) => {
     });
 };
 
+// создаем нового пользователя
 const createUser = (req, res) => {
-  const { name, about, avatar } = req.body;
-  User.create({ name, about, avatar })
+  const { name, about, avatar, email, password } = req.body;
+  // хэшируем пароль
+  bcrypt
+    .hash({ password }, 10)
+    .then((hash) => User.create({ name, about, avatar, email, password: hash }))
     // вернём записанные в базу данные
     .then((user) => res.status(201).send({ data: user }))
     // данные не записались, вернём ошибку
