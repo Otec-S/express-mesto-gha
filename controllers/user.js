@@ -47,22 +47,25 @@ const findUserById = (req, res) => {
 const createUser = (req, res) => {
   const { name, about, avatar, email, password } = req.body;
   // хэшируем пароль
-  bcrypt
-    .hash({ password }, 10)
-    .then((hash) => User.create({ name, about, avatar, email, password: hash }))
-    // вернём записанные в базу данные
-    .then((user) => res.status(201).send({ data: user }))
-    // данные не записались, вернём ошибку
-    .catch((err) => {
-      if (err instanceof mongoose.Error.ValidationError) {
-        return res.status(ERROR_CODE_BAD_REQUEST).send({
-          message: "Переданы некорректные данные при создании пользователя",
-        });
-      }
-      return res
-        .status(ERROR_CODE_SERVER_ERROR)
-        .send({ message: "На сервере произошла ошибка" });
-    });
+  bcrypt.hash(password, 10).then((hash) => {
+    User.create({ name, about, avatar, email, password: hash })
+      // вернём записанные в базу данные
+      .then((user) => {
+        console.log("user:", user);
+        res.status(201).send({ data: user });
+      })
+      // данные не записались, вернём ошибку
+      .catch((err) => {
+        if (err instanceof mongoose.Error.ValidationError) {
+          return res.status(ERROR_CODE_BAD_REQUEST).send({
+            message: "Переданы некорректные данные при создании пользователя",
+          });
+        }
+        return res
+          .status(ERROR_CODE_SERVER_ERROR)
+          .send({ message: "На сервере произошла ошибка" });
+      });
+  });
 };
 
 // обновляем профиль пользователя
