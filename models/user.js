@@ -23,6 +23,20 @@ const userSchema = new mongoose.Schema(
         message: "Некорректный URL",
       },
     },
+    email: {
+      type: String,
+      required: true,
+      unique: true,
+      validate: {
+        validator: (v) => validator.isEmail(v),
+        message: "Некорректный email",
+      },
+    },
+    password: {
+      type: String,
+      required: true,
+      minlength: 4,
+    },
   },
   { versionKey: false }
 );
