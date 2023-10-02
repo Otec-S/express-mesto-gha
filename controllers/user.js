@@ -14,6 +14,7 @@ const {
 // запрашиваем модель user и присваеваем её константе User
 const User = require("../models/user");
 
+// получение всех пользователей
 const getUsers = (req, res) => {
   User.find({})
     // вернём записанные в базу данные
@@ -25,6 +26,7 @@ const getUsers = (req, res) => {
     );
 };
 
+// нахождение пользователя по его Id
 const findUserById = (req, res) => {
   User.findById(req.params.id)
     .orFail(new Error("NotValidId"))
@@ -76,7 +78,6 @@ const login = (req, res) => {
   User.findOne({ email })
     .then((user) => {
       if (!user) {
-
         // !!!!!!!!!! TODO - ERROR_CODE_UNAUTHORIZED исправь обработку ошибок здесь и далее
         return Promise.reject(new Error("Неправильные почта или пароль"));
       }
@@ -102,6 +103,18 @@ const login = (req, res) => {
           res.send({ token }); // ??? почему тут объект
         });
     })
+    .catch((err) => {
+      return res
+        .status(ERROR_CODE_SERVER_ERROR)
+        .send({ message: "На сервере произошла ошибка" });
+    });
+};
+
+// поиск текущего пользователя
+const findCurrentUser = (req, res) => {
+  User.findById(req.user._id)
+    .then((user) => res.status(200).send({ data: user }))
+    // пользователь не найден, вернём ошибку
     .catch((err) => {
       return res
         .status(ERROR_CODE_SERVER_ERROR)
@@ -194,6 +207,7 @@ module.exports = {
   findUserById,
   createUser,
   login,
+  findCurrentUser,
   updateUserProfile,
   updateUserAvatar,
   wrongUrl,

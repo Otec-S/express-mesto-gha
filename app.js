@@ -37,14 +37,6 @@ app.post("/signup", createUser);
 // авторизация
 app.use(auth);
 
-// захардкодили одного из юзеров, чтобы временно делать его собственником всех карточек
-app.use((req, res, next) => {
-  req.user = {
-    _id: "64fdc6ff8d4ee83c0c3baaae",
-  };
-  next();
-});
-
 // применяем импортированный для юзеров route
 app.use(usersRouter);
 
