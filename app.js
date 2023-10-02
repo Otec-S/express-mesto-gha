@@ -2,6 +2,9 @@ const express = require("express");
 const mongoose = require("mongoose");
 const usersRouter = require("./routes/user");
 const cardsRouter = require("./routes/card");
+const { createUser } = require("./controllers/user"); // ????????? правильно достал?
+const { login } = require("./controllers/user"); // ????????? правильно достал?
+const auth = require("./middlewares/auth"); // ????????? правильно достал?
 const ERROR_CODE_SERVER_ERROR = require("./utils");
 
 const { PORT = 3000 } = process.env;
@@ -26,6 +29,13 @@ mongoose
       .status(ERROR_CODE_SERVER_ERROR)
       .send({ message: "На сервере произошла ошибка" })
   );
+
+// роуты, не требующие авторизации, например, регистрация и логин
+app.post("/signin", login);
+app.post("/signup", createUser);
+
+// авторизация
+app.use(auth);
 
 // захардкодили одного из юзеров, чтобы временно делать его собственником всех карточек
 app.use((req, res, next) => {

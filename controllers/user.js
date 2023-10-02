@@ -73,7 +73,7 @@ const createUser = (req, res) => {
 // аутентификация пользователя
 const login = (req, res) => {
   const { email, password } = req.body;
-  User.findOne(email) //?????
+  User.findOne({ email })
     .then((user) => {
       if (!user) {
 
