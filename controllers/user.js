@@ -51,7 +51,6 @@ const createUser = (req, res) => {
     User.create({ name, about, avatar, email, password: hash })
       // вернём записанные в базу данные
       .then((user) => {
-        console.log("user:", user);
         res.status(201).send({ data: user });
       })
       // данные не записались, вернём ошибку
@@ -66,6 +65,33 @@ const createUser = (req, res) => {
           .send({ message: "На сервере произошла ошибка" });
       });
   });
+};
+
+// аутентификация пользователя
+const login = (req, res) => {
+  const { email, password } = req.body;
+  User.findOne(email) //?????
+    .then((user) => {
+      if (!user) {
+        return Promise.reject(new Error("Неправильные почта или пароль"));
+      }
+
+      return bcrypt.compare(password, user.password);
+    })
+    .then((matched) => {
+      if (!matched) {
+        // хеши не совпали — отклоняем промис
+        return Promise.reject(new Error("Неправильные почта или пароль"));
+      }
+
+      // аутентификация успешна
+      res.send({ message: "Всё верно!" });
+    })
+    .catch((err) => {
+      return res
+        .status(ERROR_CODE_SERVER_ERROR)
+        .send({ message: "На сервере произошла ошибка" });
+    });
 };
 
 // обновляем профиль пользователя
@@ -152,6 +178,7 @@ module.exports = {
   getUsers,
   findUserById,
   createUser,
+  login,
   updateUserProfile,
   updateUserAvatar,
   wrongUrl,
