@@ -2,10 +2,13 @@ const mongoose = require("mongoose");
 
 const bcrypt = require("bcryptjs");
 
+const jwt = require("jsonwebtoken"); // импортируем модуль jsonwebtoken
+
 const {
   ERROR_CODE_SERVER_ERROR,
   ERROR_CODE_BAD_REQUEST,
   ERROR_CODE_NOT_FOUND,
+  ERROR_CODE_UNAUTHORIZED,
 } = require("../utils");
 
 // запрашиваем модель user и присваеваем её константе User
@@ -73,19 +76,31 @@ const login = (req, res) => {
   User.findOne(email) //?????
     .then((user) => {
       if (!user) {
+
+        // !!!!!!!!!! TODO - ERROR_CODE_UNAUTHORIZED исправь обработку ошибок здесь и далее
         return Promise.reject(new Error("Неправильные почта или пароль"));
       }
 
-      return bcrypt.compare(password, user.password);
-    })
-    .then((matched) => {
-      if (!matched) {
-        // хеши не совпали — отклоняем промис
-        return Promise.reject(new Error("Неправильные почта или пароль"));
-      }
+      return bcrypt
+        .compare(password, user.password)
+        .then((matched) => {
+          if (!matched) {
+            // хеши не совпали — отклоняем промис
+            return Promise.reject(new Error("Неправильные почта или пароль"));
+          }
 
-      // аутентификация успешна
-      res.send({ message: "Всё верно!" });
+          // аутентификация успешна
+          return user;
+        })
+        .then((user) => {
+          // создадим токен
+          const token = jwt.sign({ _id: user._id }, "some-secret-key", {
+            expiresIn: "7d",
+          });
+
+          // вернём токен
+          res.send({ token }); // ??? почему тут объект
+        });
     })
     .catch((err) => {
       return res
