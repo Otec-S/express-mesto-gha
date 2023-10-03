@@ -4,11 +4,13 @@ const {
   ERROR_CODE_SERVER_ERROR,
   ERROR_CODE_BAD_REQUEST,
   ERROR_CODE_NOT_FOUND,
+  ERROR_CODE_FORBIDDEN,
 } = require("../utils");
 
 // запрашиваем модель card и присваеваем её константе Card
 const Card = require("../models/card");
 
+// получаем перечень всех карточек
 const getCards = (req, res) => {
   Card.find({})
     // вернём все карточки
@@ -20,6 +22,7 @@ const getCards = (req, res) => {
     );
 };
 
+// создание новой карточки
 const createCard = (req, res) => {
   const { name, link } = req.body;
   const owner = req.user._id;
@@ -39,10 +42,20 @@ const createCard = (req, res) => {
     });
 };
 
+// удаление карточки
 const deleteCardById = (req, res) => {
-  Card.findByIdAndRemove(req.params.cardId, { useFindAndModify: false })
+  Card.findById(req.params.cardId)
     .orFail(new Error("NotValidId"))
-    .then((card) => res.send({ data: card }))
+    .then((card) => {
+      if (req.user._id == card.owner) {
+        res.send({ data: card });
+        return card.deleteOne();
+      } else {
+        return res
+          .status(ERROR_CODE_FORBIDDEN)
+          .send({ message: "У вас нет прав на удаление этой карточки" });
+      }
+    })
     .catch((err) => {
       if (err.message === "NotValidId") {
         return res
