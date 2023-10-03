@@ -4,12 +4,10 @@ const bcrypt = require("bcryptjs");
 
 const jwt = require("jsonwebtoken"); // импортируем модуль jsonwebtoken
 
-const {
-  ERROR_CODE_SERVER_ERROR,
-  ERROR_CODE_NOT_FOUND,
-} = require("../utils");
+const { ERROR_CODE_SERVER_ERROR, ERROR_CODE_NOT_FOUND } = require("../utils");
 
 const BadRequest400Error = require("../errors/bad-request-400-error");
+const Unauthorized401Error = require("../errors/unauthorized-401-error");
 
 // запрашиваем модель user и присваеваем её константе User
 const User = require("../models/user");
@@ -69,25 +67,24 @@ const createUser = (req, res, next) => {
 };
 
 // аутентификация пользователя
-const login = (req, res) => {
+const login = (req, res, next) => {
   const { email, password } = req.body;
   User.findOne({ email })
     .select("+password")
+    // сначала проверяем почту - есть такая вообще в базе?
     .then((user) => {
       if (!user) {
-        // !!!!!!!!!! TODO - ERROR_CODE_UNAUTHORIZED исправь обработку ошибок здесь и далее
-        return Promise.reject(new Error("Неправильные почта или пароль"));
+        throw new Unauthorized401Error("Неправильные почта или пароль");
       }
-
       return bcrypt
         .compare(password, user.password)
+        // теперь проверяем пароль на совпадение с имеющимися в базе
         .then((matched) => {
           if (!matched) {
-            // хеши не совпали — отклоняем промис
-            return Promise.reject(new Error("Неправильные почта или пароль"));
+            // хеши не совпали — выбрасываем ошибку
+            throw new Unauthorized401Error("Неправильные почта или пароль");
           }
-
-          // аутентификация успешна
+          // аутентификация успешна - возвращаем юзера
           return user;
         })
         .then((user) => {
@@ -100,11 +97,7 @@ const login = (req, res) => {
           res.send({ token }); // ??? почему тут объект
         });
     })
-    .catch((err) => {
-      return res
-        .status(ERROR_CODE_SERVER_ERROR)
-        .send({ message: "На сервере произошла ошибка" });
-    });
+    .catch(next);
 };
 
 // поиск текущего пользователя
