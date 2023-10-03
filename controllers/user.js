@@ -75,7 +75,7 @@ const createUser = (req, res) => {
 // аутентификация пользователя
 const login = (req, res) => {
   const { email, password } = req.body;
-  User.findOne({ email })
+  User.findOne({ email }).select('+password')
     .then((user) => {
       if (!user) {
         // !!!!!!!!!! TODO - ERROR_CODE_UNAUTHORIZED исправь обработку ошибок здесь и далее
