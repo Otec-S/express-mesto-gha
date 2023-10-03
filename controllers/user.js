@@ -6,10 +6,10 @@ const jwt = require("jsonwebtoken"); // импортируем модуль json
 
 const {
   ERROR_CODE_SERVER_ERROR,
-  ERROR_CODE_BAD_REQUEST,
   ERROR_CODE_NOT_FOUND,
-  ERROR_CODE_UNAUTHORIZED,
 } = require("../utils");
+
+const BadRequest400Error = require("../errors/bad-request-400-error");
 
 // запрашиваем модель user и присваеваем её константе User
 const User = require("../models/user");
@@ -27,7 +27,7 @@ const getUsers = (req, res) => {
 };
 
 // нахождение пользователя по его Id
-const findUserById = (req, res) => {
+const findUserById = (req, res, next) => {
   User.findById(req.params.id)
     .orFail(new Error("NotValidId"))
     .then((user) => res.send({ data: user }))
@@ -38,18 +38,16 @@ const findUserById = (req, res) => {
         });
       }
       if (err instanceof mongoose.Error.CastError) {
-        return res
-          .status(ERROR_CODE_BAD_REQUEST)
-          .send({ message: "Пользователь по указанному _id не найден" });
+        throw new BadRequest400Error(
+          "Пользователь по указанному _id не найден"
+        );
       }
-      return res
-        .status(ERROR_CODE_SERVER_ERROR)
-        .send({ message: "На сервере произошла ошибка" });
-    });
+    })
+    .catch(next);
 };
 
 // создаем нового пользователя
-const createUser = (req, res) => {
+const createUser = (req, res, next) => {
   const { name, about, avatar, email, password } = req.body;
   // хэшируем пароль
   bcrypt.hash(password, 10).then((hash) => {
@@ -61,21 +59,20 @@ const createUser = (req, res) => {
       // данные не записались, вернём ошибку
       .catch((err) => {
         if (err instanceof mongoose.Error.ValidationError) {
-          return res.status(ERROR_CODE_BAD_REQUEST).send({
-            message: "Переданы некорректные данные при создании пользователя",
-          });
+          throw new BadRequest400Error(
+            "Переданы некорректные данные при создании пользователя"
+          );
         }
-        return res
-          .status(ERROR_CODE_SERVER_ERROR)
-          .send({ message: "На сервере произошла ошибка" });
-      });
+      })
+      .catch(next);
   });
 };
 
 // аутентификация пользователя
 const login = (req, res) => {
   const { email, password } = req.body;
-  User.findOne({ email }).select('+password')
+  User.findOne({ email })
+    .select("+password")
     .then((user) => {
       if (!user) {
         // !!!!!!!!!! TODO - ERROR_CODE_UNAUTHORIZED исправь обработку ошибок здесь и далее
@@ -126,7 +123,7 @@ const findCurrentUser = (req, res) => {
 let newName;
 let newAbout;
 
-const updateUserProfile = (req, res) => {
+const updateUserProfile = (req, res, next) => {
   if (req.body.name) {
     newName = req.body.name;
   }
@@ -156,18 +153,16 @@ const updateUserProfile = (req, res) => {
         });
       }
       if (err instanceof mongoose.Error.ValidationError) {
-        return res.status(ERROR_CODE_BAD_REQUEST).send({
-          message: "Переданы некорректные данные при обновлении профиля",
-        });
+        throw new BadRequest400Error(
+          "Переданы некорректные данные при обновлении профиля"
+        );
       }
-      return res
-        .status(ERROR_CODE_SERVER_ERROR)
-        .send({ message: "На сервере произошла ошибка" });
-    });
+    })
+    .catch(next);
 };
 
 // обновляем аватар пользователя
-const updateUserAvatar = (req, res) => {
+const updateUserAvatar = (req, res, next) => {
   User.findByIdAndUpdate(
     req.user._id,
     {
@@ -188,14 +183,12 @@ const updateUserAvatar = (req, res) => {
         });
       }
       if (err instanceof mongoose.Error.ValidationError) {
-        return res.status(ERROR_CODE_BAD_REQUEST).send({
-          message: "Переданы некорректные данные при обновлении аватара",
-        });
+        throw new BadRequest400Error(
+          "Переданы некорректные данные при обновлении аватара"
+        );
       }
-      return res
-        .status(ERROR_CODE_SERVER_ERROR)
-        .send({ message: "На сервере произошла ошибка" });
-    });
+    })
+    .catch(next);
 };
 
 // общая ошибка в url
