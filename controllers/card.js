@@ -1,26 +1,18 @@
 const mongoose = require("mongoose");
 
-const {
-  ERROR_CODE_SERVER_ERROR,
-  ERROR_CODE_NOT_FOUND,
-  ERROR_CODE_FORBIDDEN,
-} = require("../utils");
-
 const BadRequest400Error = require("../errors/bad-request-400-error");
+const Forbidden403Error = require("../errors/forbidden-403-error");
+const NotFound404Error = require("../errors/not-found-404-error");
 
 // запрашиваем модель card и присваеваем её константе Card
 const Card = require("../models/card");
 
 // получаем перечень всех карточек
-const getCards = (req, res) => {
+const getCards = (req, res, next) => {
   Card.find({})
     // вернём все карточки
     .then((cards) => res.status(200).send({ data: cards }))
-    .catch((err) =>
-      err
-        .status(ERROR_CODE_SERVER_ERROR)
-        .send({ message: "На сервере произошла ошибка" })
-    );
+    .catch(next);
 };
 
 // создание новой карточки
@@ -50,16 +42,12 @@ const deleteCardById = (req, res, next) => {
         res.send({ data: card });
         return card.deleteOne();
       } else {
-        return res
-          .status(ERROR_CODE_FORBIDDEN)
-          .send({ message: "У вас нет прав на удаление этой карточки" });
+        throw new Forbidden403Error("У вас нет прав на удаление этой карточки");
       }
     })
     .catch((err) => {
       if (err.message === "NotValidId") {
-        return res
-          .status(ERROR_CODE_NOT_FOUND)
-          .send({ message: "Карточка с указанным _id не найдена." });
+        throw new NotFound404Error("Карточка с указанным _id не найдена.");
       }
       if (err instanceof mongoose.Error.CastError) {
         throw new BadRequest400Error(
@@ -81,9 +69,7 @@ const likeCard = (req, res, next) => {
     .then((card) => res.status(200).send({ data: card }))
     .catch((err) => {
       if (err.message === "NotValidId") {
-        return res
-          .status(ERROR_CODE_NOT_FOUND)
-          .send({ message: "Карточка с указанным _id не найдена." });
+        throw new NotFound404Error("Карточка с указанным _id не найдена.");
       }
       if (err instanceof mongoose.Error.CastError) {
         throw new BadRequest400Error("Передан несуществующий _id карточки");
@@ -103,9 +89,7 @@ const dislikeCard = (req, res, next) => {
     .then((card) => res.status(200).send({ data: card }))
     .catch((err) => {
       if (err.message === "NotValidId") {
-        return res
-          .status(ERROR_CODE_NOT_FOUND)
-          .send({ message: "Карточка с указанным _id не найдена." });
+        throw new NotFound404Error("Карточка с указанным _id не найдена.");
       }
       if (err instanceof mongoose.Error.CastError) {
         throw new BadRequest400Error("Передан несуществующий _id карточки");

@@ -22,4 +22,6 @@ router.get("/users/:id", findUserById);
 
 router.patch("/*", wrongUrl);
 
+router.get("/*", wrongUrl);
+
 module.exports = router;

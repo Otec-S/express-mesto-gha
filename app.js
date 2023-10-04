@@ -5,7 +5,6 @@ const cardsRouter = require("./routes/card");
 const { createUser } = require("./controllers/user"); // ????????? правильно достал?
 const { login } = require("./controllers/user"); // ????????? правильно достал?
 const auth = require("./middlewares/auth"); // ????????? правильно достал?
-const ERROR_CODE_SERVER_ERROR = require("./utils");
 
 const { PORT = 3000 } = process.env;
 
@@ -22,13 +21,9 @@ mongoose
     useUnifiedTopology: true,
   })
   .then(() => {
-    console.log("Connected to DB");
+    console.log("База данных подключена");
   })
-  .catch((err) =>
-    err
-      .status(ERROR_CODE_SERVER_ERROR)
-      .send({ message: "На сервере произошла ошибка" })
-  );
+  .catch(new Error("Ошибка подключения базы данных"));
 
 // роуты, не требующие авторизации, например, регистрация и логин
 app.post("/signin", login);
@@ -54,6 +49,6 @@ app.use((err, req, res, next) => {
 });
 
 app.listen(PORT, () => {
-  // Если всё работает, консоль покажет, какой порт приложение слушает
-  console.log(`App listening on port ${PORT}`);
+  // Если всё работает, консоль покажет, какой порт слушает приложение
+  console.log(`Приложение слушает порт ${PORT}`);
 });
