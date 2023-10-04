@@ -1,4 +1,7 @@
 const router = require("express").Router();
+
+const { celebrate, Joi } = require("celebrate");
+
 const {
   getUsers,
   findUserById,
@@ -10,18 +13,40 @@ const {
 
 router.get("/users", getUsers);
 
-// router.post("/users", createUser);
-
 router.get("/users/me", findCurrentUser);
 
-router.patch("/users/me", updateUserProfile);
+router.patch(
+  "/users/me",
+  celebrate({
+    body: Joi.object().keys({
+      name: Joi.string().min(2).max(30),
+      about: Joi.string().min(2).max(30),
+    }),
+  }),
+  updateUserProfile
+);
 
-router.patch("/users/me/avatar", updateUserAvatar);
+router.patch(
+  "/users/me/avatar",
+  celebrate({
+    body: Joi.object().keys({
+      avatar: Joi.string(),
+    }),
+  }),
+  updateUserAvatar
+);
 
-router.get("/users/:id", findUserById);
+router.get(
+  "/users/:id",
+  celebrate({
+    //   валидируем параметры
+    params: Joi.object().keys({
+      id: Joi.string().alphanum().length(24),
+    }),
+  }),
+  findUserById
+);
 
 router.patch("/*", wrongUrl);
-
-router.get("/*", wrongUrl);
 
 module.exports = router;

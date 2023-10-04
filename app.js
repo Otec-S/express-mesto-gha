@@ -6,6 +6,8 @@ const { createUser } = require("./controllers/user"); // ????????? правил�
 const { login } = require("./controllers/user"); // ????????? правильно достал?
 const auth = require("./middlewares/auth"); // ????????? правильно достал?
 
+const { errors, celebrate, Joi } = require("celebrate");
+
 const { PORT = 3000 } = process.env;
 
 const app = express();
@@ -26,10 +28,36 @@ mongoose
   .catch(new Error("Ошибка подключения базы данных"));
 
 // роуты, не требующие авторизации, например, регистрация и логин
-app.post("/signin", login);
-app.post("/signup", createUser);
+app.post(
+  "/signin",
+  celebrate({
+    body: Joi.object().keys({
+      email: Joi.string().email({ minDomainSegments: 2 }).required(),
+      password: Joi.string()
+        .required()
+        .pattern(new RegExp("^[a-zA-Z0-9]{3,30}$")),
+    }),
+  }),
+  login
+);
 
-// авторизация
+app.post(
+  "/signup",
+  celebrate({
+    body: Joi.object().keys({
+      name: Joi.string().min(2).max(30),
+      about: Joi.string().min(2).max(30),
+      avatar: Joi.string(),
+      email: Joi.string().email({ minDomainSegments: 2 }).required(),
+      password: Joi.string()
+        .required()
+        .pattern(new RegExp("^[a-zA-Z0-9]{3,30}$")),
+    }),
+  }),
+  createUser
+);
+
+// модлвэр авторизации
 app.use(auth);
 
 // применяем импортированный для юзеров route
@@ -37,6 +65,9 @@ app.use(usersRouter);
 
 // применяем импортированный для карточек route
 app.use(cardsRouter);
+
+// обработчик ошибок celebrate
+app.use(errors());
 
 // здесь обрабатываем все ошибки
 app.use((err, req, res, next) => {
