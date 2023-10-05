@@ -2,9 +2,9 @@ const express = require("express");
 const mongoose = require("mongoose");
 const usersRouter = require("./routes/user");
 const cardsRouter = require("./routes/card");
-const { createUser } = require("./controllers/user"); // ????????? правильно достал?
-const { login } = require("./controllers/user"); // ????????? правильно достал?
-const auth = require("./middlewares/auth"); // ????????? правильно достал?
+const { createUser } = require("./controllers/user");
+const { login } = require("./controllers/user");
+const auth = require("./middlewares/auth");
 
 const { errors, celebrate, Joi } = require("celebrate");
 

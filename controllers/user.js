@@ -9,7 +9,6 @@ const Unauthorized401Error = require("../errors/unauthorized-401-error");
 const NotFound404Error = require("../errors/not-found-404-error");
 const Conflict409Error = require("../errors/conflict-409-error");
 
-
 // запрашиваем модель user и присваеваем её константе User
 const User = require("../models/user");
 
