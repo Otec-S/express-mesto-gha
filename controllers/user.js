@@ -87,9 +87,9 @@ const login = (req, res, next) => {
             // аутентификация успешна - возвращаем юзера
             return user;
           })
-          .then((user) => {
+          .then((authUser) => {
             // создадим токен
-            const token = jwt.sign({ _id: user._id }, "some-secret-key", {
+            const token = jwt.sign({ _id: authUser._id }, "some-secret-key", {
               expiresIn: "7d",
             });
 

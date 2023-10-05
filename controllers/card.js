@@ -38,12 +38,11 @@ const deleteCardById = (req, res, next) => {
   Card.findById(req.params.cardId)
     .orFail(new Error("NotValidId"))
     .then((card) => {
-      if (req.user._id == card.owner) {
+      if (req.user._id === card.owner) {
         res.send({ data: card });
         return card.deleteOne();
-      } else {
-        throw new Forbidden403Error("У вас нет прав на удаление этой карточки");
       }
+      throw new Forbidden403Error("У вас нет прав на удаление этой карточки");
     })
     .catch((err) => {
       if (err.message === "NotValidId") {
