@@ -5,21 +5,36 @@ const userSchema = new mongoose.Schema(
   {
     name: {
       type: String,
-      default: 'Жак-Ив Кусто',
+      default: "Жак-Ив Кусто",
       minlength: 2,
       maxlength: 30,
     },
     about: {
       type: String,
-      default: 'Исследователь',
+      default: "Исследователь",
       minlength: 2,
       maxlength: 30,
     },
+
+    /*
+validate: {
+      validator: function(v) {
+        return /\d{3}-\d{3}-\d{4}/.test(v);
+      },
+      message: props => `${props.value} is not a valid phone number!`
+    },
+*/
+
     avatar: {
       type: String,
-      default: 'https://pictures.s3.yandex.net/resources/jacques-cousteau_1604399756.png',
+      default:
+        "https://pictures.s3.yandex.net/resources/jacques-cousteau_1604399756.png",
       validate: {
-        validator: (v) => validator.isURL(v),
+        validator: function (v) {
+          return /^((https?):\/\/(www.)?([A-Z0-9]\-)*)([A-Z0-9]+)(\w\.\~\:\/\?\#\[\]\@\!\$\&\'\(\)\*\+\,\;\=)*/i.test(
+            v
+          );
+        },
         message: "Некорректный URL",
       },
     },
