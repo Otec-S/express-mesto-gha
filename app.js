@@ -1,11 +1,12 @@
 const express = require("express");
 const mongoose = require("mongoose");
 const { errors, celebrate, Joi } = require("celebrate");
-const usersRouter = require("./routes/user");
-const cardsRouter = require("./routes/card");
+
 const { createUser } = require("./controllers/user");
 const { login } = require("./controllers/user");
 const auth = require("./middlewares/auth");
+const usersRouter = require("./routes/user");
+const cardsRouter = require("./routes/card");
 
 const { PORT = 3000 } = process.env;
 
@@ -46,7 +47,7 @@ app.post(
       password: Joi.string().required(),
       name: Joi.string().min(2).max(30),
       about: Joi.string().min(2).max(30),
-      avatar: Joi.string().dataUri(),
+      avatar: Joi.string().uri(),
     }),
   }),
   createUser
