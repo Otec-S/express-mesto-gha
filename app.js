@@ -68,7 +68,7 @@ app.use(cardsRouter);
 app.use(errors());
 
 // здесь обрабатываем все ошибки
-app.use((err, req, res) => {
+app.use((err, req, res, next) => { // ругается тут на next?
   // если у ошибки нет статуса, выставляем 500
   const { statusCode = 500, message } = err;
   res.status(statusCode).send({
