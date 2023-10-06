@@ -46,7 +46,7 @@ const createUser = (req, res, next) => {
     User.create({ name, about, avatar, email, password: hash })
       // вернём записанные в базу данные
       .then((user) => {
-        res.status(201).send({ data: user });
+        res.status(201).send({ data: user.email });
       })
       // данные не записались, вернём ошибку
       .catch((err) => {
