@@ -7,7 +7,6 @@ const { createUser } = require("./controllers/user");
 const { login } = require("./controllers/user");
 const auth = require("./middlewares/auth");
 
-
 const { PORT = 3000 } = process.env;
 
 const app = express();
@@ -33,8 +32,7 @@ app.post(
   celebrate({
     body: Joi.object().keys({
       email: Joi.string().email({ minDomainSegments: 2 }).required(),
-      password: Joi.string()
-        .required(),
+      password: Joi.string().required(),
     }),
   }),
   login
@@ -44,12 +42,11 @@ app.post(
   "/signup",
   celebrate({
     body: Joi.object().keys({
+      email: Joi.string().email().required(),
+      password: Joi.string().required(),
       name: Joi.string().min(2).max(30),
       about: Joi.string().min(2).max(30),
       avatar: Joi.string().domain(),
-      email: Joi.string().email().required(),
-      password: Joi.string()
-        .required(),
     }),
   }),
   createUser
@@ -68,7 +65,8 @@ app.use(cardsRouter);
 app.use(errors());
 
 // здесь обрабатываем все ошибки
-app.use((err, req, res, next) => { // ругается тут на next?
+app.use((err, req, res, next) => {
+  // ругается тут на next?
   // если у ошибки нет статуса, выставляем 500
   const { statusCode = 500, message } = err;
   res.status(statusCode).send({
