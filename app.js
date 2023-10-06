@@ -46,8 +46,8 @@ app.post(
     body: Joi.object().keys({
       name: Joi.string().min(2).max(30),
       about: Joi.string().min(2).max(30),
-      avatar: Joi.string().domain(), // !!!!!!!!!!!!!
-      email: Joi.string().email({ minDomainSegments: 2 }).required(),
+      avatar: Joi.string().domain(),
+      email: Joi.string().email().required(),
       password: Joi.string()
         .required(),
     }),
