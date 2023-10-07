@@ -42,13 +42,13 @@ const deleteCardById = (req, res, next) => {
       console.log("req.user._id:", req.user._id);
       console.log("card.owner:", card.owner);
 
-      if (req.user._id == card.owner) {
+      if (req.user._id == card.owner) { // не работает с ===
         console.log("yes");
         res.send({ data: card });
         card.deleteOne();
       } else {
         console.log("no");
-        throw new Forbidden403Error("У вас нет прав на удаление этой карточки");
+        throw new Forbidden403Error("У вас нет прав на удаление этой карточки"); // на работает тут
       }
     })
     .catch((err) => {
