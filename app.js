@@ -8,6 +8,8 @@ const auth = require("./middlewares/auth");
 const usersRouter = require("./routes/user");
 const cardsRouter = require("./routes/card");
 
+const wrongUrl = require("./middlewares/wrongUrl");
+
 const { PORT = 3000 } = process.env;
 
 const app = express();
@@ -61,6 +63,9 @@ app.use(usersRouter);
 
 // применяем импортированный для карточек route
 app.use(cardsRouter);
+
+// обработка неправильного пути
+app.use("/*", wrongUrl);
 
 // обработчик ошибок celebrate
 app.use(errors());

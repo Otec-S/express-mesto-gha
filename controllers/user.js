@@ -23,54 +23,58 @@ const getUsers = (req, res, next) => {
 // нахождение пользователя по его Id
 const findUserById = (req, res, next) => {
   User.findById(req.params.id)
-    .orFail(new Error("NotValidId"))
+    .orFail(new NotFound404Error("Пользователь с указанным _id не найден"))
     .then((user) => res.send({ data: user }))
     .catch((err) => {
-      if (err.message === "NotValidId") {
-        throw new NotFound404Error("Пользователь с указанным _id не найден");
-      }
       if (err instanceof mongoose.Error.CastError) {
-        throw new BadRequest400Error(
-          "Пользователь по указанному _id не найден"
+        next(
+          new BadRequest400Error("Пользователь по указанному _id не найден")
         );
       }
-    })
-    .catch(next);
+      next(err);
+    });
 };
 
 // создаем нового пользователя
 const createUser = (req, res, next) => {
   const { name, about, avatar, email, password } = req.body;
   // хэшируем пароль
-  bcrypt.hash(password, 10).then((hash) => {
-    User.create({ name, about, avatar, email, password: hash })
-      // вернём записанные в базу данные
-      .then((user) => {
-        res.status(201).send({
-          data: {
-            name: user.name,
-            about: user.about,
-            avatar: user.avatar,
-            _id: user._id,
-            email: user.email,
-          },
+  bcrypt
+    .hash(password, 10)
+    .then((hash) => {
+      User.create({ name, about, avatar, email, password: hash })
+        // вернём записанные в базу данные
+        .then((user) => {
+          res.status(201).send({
+            data: {
+              name: user.name,
+              about: user.about,
+              avatar: user.avatar,
+              _id: user._id,
+              email: user.email,
+            },
+          });
+        })
+        // данные не записались, вернём ошибку
+        .catch((err) => {
+          if (err.code === 11000) {
+            next(
+              new Conflict409Error(
+                "Пользователь с таким email уже зарегистрирован"
+              )
+            );
+          }
+          if (err instanceof mongoose.Error.ValidationError) {
+            next(
+              new BadRequest400Error(
+                "Переданы некорректные данные при создании пользователя"
+              )
+            );
+          }
+          next(err);
         });
-      })
-      // данные не записались, вернём ошибку
-      .catch((err) => {
-        if (err.code === 11000) {
-          throw new Conflict409Error(
-            "Пользователь с таким email уже зарегистрирован"
-          );
-        }
-        if (err instanceof mongoose.Error.ValidationError) {
-          throw new BadRequest400Error(
-            "Переданы некорректные данные при создании пользователя"
-          );
-        }
-      })
-      .catch(next);
-  });
+    })
+    .catch(next);
 };
 
 // аутентификация пользователя
@@ -118,43 +122,32 @@ const findCurrentUser = (req, res, next) => {
 };
 
 // обновляем профиль пользователя
-let newName;
-let newAbout;
 
 const updateUserProfile = (req, res, next) => {
-  if (req.body.name) {
-    newName = req.body.name;
-  }
-
-  if (req.body.about) {
-    newAbout = req.body.about;
-  }
-
   User.findByIdAndUpdate(
     req.user._id,
     {
-      name: newName,
-      about: newAbout,
+      name: req.body.name,
+      about: req.body.about,
     },
     {
       new: true,
       runValidators: true,
     }
   )
-    .orFail(new Error("NotValidId"))
+    .orFail(new NotFound404Error("Пользователь с указанным _id не найден"))
     .then((user) => res.status(200).send({ data: user }))
     // данные не записались, вернём ошибку
     .catch((err) => {
-      if (err.message === "NotValidId") {
-        throw new NotFound404Error("Пользователь с указанным _id не найден");
-      }
       if (err instanceof mongoose.Error.ValidationError) {
-        throw new BadRequest400Error(
-          "Переданы некорректные данные при обновлении профиля"
+        next(
+          new BadRequest400Error(
+            "Переданы некорректные данные при обновлении профиля"
+          )
         );
       }
-    })
-    .catch(next);
+      next(err);
+    });
 };
 
 // обновляем аватар пользователя
@@ -169,26 +162,19 @@ const updateUserAvatar = (req, res, next) => {
       runValidators: true,
     }
   )
-    .orFail(new Error("NotValidId"))
+    .orFail(new NotFound404Error("Пользователь с указанным _id не найден"))
     .then((user) => res.status(200).send({ data: user }))
     // данные не записались, вернём ошибку
     .catch((err) => {
-      if (err.message === "NotValidId") {
-        throw new NotFound404Error("Пользователь с указанным _id не найден");
-      }
       if (err instanceof mongoose.Error.ValidationError) {
-        throw new BadRequest400Error(
-          "Переданы некорректные данные при обновлении аватара"
+        next(
+          new BadRequest400Error(
+            "Переданы некорректные данные при обновлении аватара"
+          )
         );
       }
-    })
-    .catch(next);
-};
-
-// общая ошибка в url
-const wrongUrl = (req, res, next) => {
-  const err = new NotFound404Error("Неверный адрес страницы");
-  return next(err);
+      next(err);
+    });
 };
 
 module.exports = {
@@ -199,5 +185,4 @@ module.exports = {
   findCurrentUser,
   updateUserProfile,
   updateUserAvatar,
-  wrongUrl,
 };

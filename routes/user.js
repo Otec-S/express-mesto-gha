@@ -8,7 +8,7 @@ const {
   findCurrentUser,
   updateUserProfile,
   updateUserAvatar,
-  wrongUrl,
+  // wrongUrl,
 } = require("../controllers/user");
 
 router.get("/users", getUsers);
@@ -46,7 +46,5 @@ router.get(
   }),
   findUserById
 );
-
-router.patch("/*", wrongUrl);
 
 module.exports = router;

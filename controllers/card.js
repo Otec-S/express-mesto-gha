@@ -25,40 +25,37 @@ const createCard = (req, res, next) => {
     // данные не записались, вернём ошибку
     .catch((err) => {
       if (err instanceof mongoose.Error.ValidationError) {
-        throw new BadRequest400Error(
-          "Переданы некорректные данные при создании карточки"
+        next(
+          new BadRequest400Error(
+            "Переданы некорректные данные при создании карточки"
+          )
         );
       }
-    })
-    .catch(next);
+      next(err);
+    });
 };
 
 // удаление карточки
 const deleteCardById = (req, res, next) => {
   Card.findById(req.params.cardId)
-    .orFail(new Error("NotValidId"))
+    .orFail(new NotFound404Error("Карточка с указанным _id не найдена."))
     .then((card) => {
       if (card.owner.equals(req.user._id)) {
-        res.send({ data: card });
-        card.deleteOne();
-      } else {
-        throw new Error("NotYourCard");
+        return card.deleteOne().then(() => res.send({ data: card }));
       }
+
+      throw new Forbidden403Error("У вас нет прав на удаление этой карточки");
     })
     .catch((err) => {
-      if (err.message === "NotValidId") {
-        throw new NotFound404Error("Карточка с указанным _id не найдена.");
-      }
-      if (err.message === "NotYourCard") {
-        throw new Forbidden403Error("У вас нет прав на удаление этой карточки");
-      }
       if (err instanceof mongoose.Error.CastError) {
-        throw new BadRequest400Error(
-          "Переданы некорректные данные для удаления карточки"
+        next(
+          new BadRequest400Error(
+            "Переданы некорректные данные для удаления карточки"
+          )
         );
       }
-    })
-    .catch(next);
+      next(err);
+    });
 };
 
 // поставить лайк карточке
@@ -68,17 +65,14 @@ const likeCard = (req, res, next) => {
     { $addToSet: { likes: req.user._id } }, // добавить _id в массив, если его там нет
     { new: true }
   )
-    .orFail(new Error("NotValidId"))
+    .orFail(new NotFound404Error("Карточка с указанным _id не найдена."))
     .then((card) => res.status(200).send({ data: card }))
     .catch((err) => {
-      if (err.message === "NotValidId") {
-        throw new NotFound404Error("Карточка с указанным _id не найдена.");
-      }
       if (err instanceof mongoose.Error.CastError) {
-        throw new BadRequest400Error("Передан несуществующий _id карточки");
+        throw new BadRequest400Error("Передан невалидный _id карточки");
       }
-    })
-    .catch(next);
+      next(err);
+    });
 };
 
 // убрать лайк с карточки
@@ -88,17 +82,14 @@ const dislikeCard = (req, res, next) => {
     { $pull: { likes: req.user._id } }, // убрать _id из массива
     { new: true }
   )
-    .orFail(new Error("NotValidId"))
+    .orFail(new NotFound404Error("Карточка с указанным _id не найдена."))
     .then((card) => res.status(200).send({ data: card }))
     .catch((err) => {
-      if (err.message === "NotValidId") {
-        throw new NotFound404Error("Карточка с указанным _id не найдена.");
-      }
       if (err instanceof mongoose.Error.CastError) {
-        throw new BadRequest400Error("Передан несуществующий _id карточки");
+        throw new BadRequest400Error("Передан невалидный _id карточки");
       }
-    })
-    .catch(next);
+      next(err);
+    });
 };
 
 module.exports = {
