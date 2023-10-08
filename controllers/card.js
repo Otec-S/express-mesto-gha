@@ -41,19 +41,26 @@ const deleteCardById = (req, res, next) => {
     .then((card) => {
       console.log("req.user._id:", req.user._id);
       console.log("card.owner:", card.owner);
+      console.log("type of card.owner:", typeof card.owner);
 
-      if (req.user._id == card.owner) { // не работает с ===
+      if (card.owner.equals(req.user._id)) {
+        // ????????
         console.log("yes");
         res.send({ data: card });
         card.deleteOne();
+        console.log("yes2");
       } else {
         console.log("no");
-        throw new Forbidden403Error("У вас нет прав на удаление этой карточки"); // на работает тут
+        throw new Error("NotYourCard");
+        //   throw new Forbidden403Error("У вас нет прав на удаление этой карточки"); // на работает тут
       }
     })
     .catch((err) => {
       if (err.message === "NotValidId") {
         throw new NotFound404Error("Карточка с указанным _id не найдена.");
+      }
+      if (err.message === "NotYourCard") {
+        throw new Forbidden403Error("У вас нет прав на удаление этой карточки");
       }
       if (err instanceof mongoose.Error.CastError) {
         throw new BadRequest400Error(
