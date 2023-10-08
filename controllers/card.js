@@ -35,24 +35,14 @@ const createCard = (req, res, next) => {
 
 // удаление карточки
 const deleteCardById = (req, res, next) => {
-  console.log("req.params.cardId:", req.params.cardId);
   Card.findById(req.params.cardId)
     .orFail(new Error("NotValidId"))
     .then((card) => {
-      console.log("req.user._id:", req.user._id);
-      console.log("card.owner:", card.owner);
-      console.log("type of card.owner:", typeof card.owner);
-
       if (card.owner.equals(req.user._id)) {
-        // ????????
-        console.log("yes");
         res.send({ data: card });
         card.deleteOne();
-        console.log("yes2");
       } else {
-        console.log("no");
         throw new Error("NotYourCard");
-        //   throw new Forbidden403Error("У вас нет прав на удаление этой карточки"); // на работает тут
       }
     })
     .catch((err) => {

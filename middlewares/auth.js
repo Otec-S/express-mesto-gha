@@ -25,5 +25,5 @@ module.exports = (req, res, next) => {
 
   next(); // пропускаем запрос дальше
 
-  return req.user; // ???????????????
+  return req.user;
 };

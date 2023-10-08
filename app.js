@@ -32,7 +32,7 @@ app.post(
   "/signin",
   celebrate({
     body: Joi.object().keys({
-      email: Joi.string().email({ minDomainSegments: 2 }).required(),
+      email: Joi.string().email().required(),
       password: Joi.string().required(),
     }),
   }),
@@ -67,7 +67,6 @@ app.use(errors());
 
 // здесь обрабатываем все ошибки
 app.use((err, req, res, next) => {
-  // ругается тут на next?
   // если у ошибки нет статуса, выставляем 500
   const { statusCode = 500, message } = err;
   res.status(statusCode).send({
