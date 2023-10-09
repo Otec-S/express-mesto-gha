@@ -10,6 +10,8 @@ const cardsRouter = require("./routes/card");
 
 const wrongUrl = require("./middlewares/wrongUrl");
 
+const { requestLogger, errorLogger } = require("./middlewares/logger");
+
 const { PORT = 3000 } = process.env;
 
 const app = express();
@@ -28,6 +30,9 @@ mongoose
     console.log("База данных подключена");
   })
   .catch(new Error("Ошибка подключения базы данных"));
+
+// подключаем логгер запросов
+app.use(requestLogger);
 
 // роуты, не требующие авторизации, например, регистрация и логин
 app.post(
@@ -68,6 +73,9 @@ app.use(cardsRouter);
 
 // обработка неправильного пути
 app.use("/*", wrongUrl);
+
+// подключаем логгер ошибок
+app.use(errorLogger);
 
 // обработчик ошибок celebrate
 app.use(errors());
