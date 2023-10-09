@@ -17,7 +17,9 @@ router.post(
   celebrate({
     body: Joi.object().keys({
       name: Joi.string().required().min(2).max(30),
-      link: Joi.string().required().pattern(/^((https?):\/\/(www.)?([A-Z0-9]-)*)([A-Z0-9]+)(\w\.)*/i),
+      link: Joi.string()
+        .required()
+        .pattern(/^((https?):\/\/(www.)?([A-Z0-9]-)*)([A-Z0-9]+)(\w\.)*/i),
     }),
   }),
   createCard
@@ -28,7 +30,7 @@ router.delete(
   celebrate({
     //   валидируем параметры
     params: Joi.object().keys({
-      cardId: Joi.string().alphanum().length(24),
+      cardId: Joi.string().hex().length(24),
     }),
   }),
   deleteCardById
@@ -39,7 +41,7 @@ router.put(
   celebrate({
     //   валидируем параметры
     params: Joi.object().keys({
-      cardId: Joi.string().alphanum().length(24),
+      cardId: Joi.string().hex().length(24),
     }),
   }),
   likeCard
@@ -50,7 +52,7 @@ router.delete(
   celebrate({
     //   валидируем параметры
     params: Joi.object().keys({
-      cardId: Joi.string().alphanum().length(24),
+      cardId: Joi.string().hex().length(24),
     }),
   }),
   dislikeCard

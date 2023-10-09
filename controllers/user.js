@@ -104,7 +104,6 @@ const login = (req, res, next) => {
             const token = jwt.sign({ _id: authUser._id }, "some-secret-key", {
               expiresIn: "7d",
             });
-
             // вернём токен
             res.send({ token }); // ??? почему тут объект
           })
