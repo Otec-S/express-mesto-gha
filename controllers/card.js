@@ -30,6 +30,7 @@ const createCard = (req, res, next) => {
             "Переданы некорректные данные при создании карточки"
           )
         );
+        return;
       }
       next(err);
     });
@@ -50,9 +51,10 @@ const deleteCardById = (req, res, next) => {
       if (err instanceof mongoose.Error.CastError) {
         next(
           new BadRequest400Error(
-            "Переданы некорректные данные для удаления карточки"
+            "Переданы невалидные данные для удаления карточки"
           )
         );
+        return;
       }
       next(err);
     });
@@ -69,7 +71,8 @@ const likeCard = (req, res, next) => {
     .then((card) => res.status(200).send({ data: card }))
     .catch((err) => {
       if (err instanceof mongoose.Error.CastError) {
-        throw new BadRequest400Error("Передан невалидный _id карточки");
+        next(new BadRequest400Error("Передан невалидный _id карточки"));
+        return;
       }
       next(err);
     });
@@ -86,7 +89,8 @@ const dislikeCard = (req, res, next) => {
     .then((card) => res.status(200).send({ data: card }))
     .catch((err) => {
       if (err instanceof mongoose.Error.CastError) {
-        throw new BadRequest400Error("Передан невалидный _id карточки");
+        next(new BadRequest400Error("Передан невалидный _id карточки"));
+        return;
       }
       next(err);
     });

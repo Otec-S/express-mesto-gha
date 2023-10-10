@@ -28,8 +28,9 @@ const findUserById = (req, res, next) => {
     .catch((err) => {
       if (err instanceof mongoose.Error.CastError) {
         next(
-          new BadRequest400Error("Пользователь по указанному _id не найден")
+          new BadRequest400Error("Невалидный _id пользователя")
         );
+        return;
       }
       next(err);
     });
@@ -63,6 +64,7 @@ const createUser = (req, res, next) => {
                 "Пользователь с таким email уже зарегистрирован"
               )
             );
+            return;
           }
           if (err instanceof mongoose.Error.ValidationError) {
             next(
@@ -70,6 +72,7 @@ const createUser = (req, res, next) => {
                 "Переданы некорректные данные при создании пользователя"
               )
             );
+            return;
           }
           next(err);
         });
@@ -105,7 +108,7 @@ const login = (req, res, next) => {
               expiresIn: "7d",
             });
             // вернём токен
-            res.send({ token }); // ??? почему тут объект
+            res.send({ token });
           })
       );
     })
@@ -144,6 +147,7 @@ const updateUserProfile = (req, res, next) => {
             "Переданы некорректные данные при обновлении профиля"
           )
         );
+        return;
       }
       next(err);
     });
@@ -171,6 +175,7 @@ const updateUserAvatar = (req, res, next) => {
             "Переданы некорректные данные при обновлении аватара"
           )
         );
+        return;
       }
       next(err);
     });
